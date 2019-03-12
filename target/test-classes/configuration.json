@@ -1,0 +1,67 @@
+[{
+  "name": "globalDefault",
+  "throttleSettings": {
+    "requestsPerSecond": 100,
+    "segment": [{
+      "name": "freeSegment",
+      "requestsPerSecond": 50
+    },
+      {
+        "name": "testSegment",
+        "requestsPerSecond": 90
+      },
+      {
+        "name": "premium",
+        "requestsPerSecond": 150
+      }
+    ],
+    "account": [{
+      "name": "cisco",
+      "requestsPerSecond": 200
+    },
+      {
+        "name": "intel",
+        "requestsPerSecond": 120
+      }
+    ]
+  }
+},
+  {
+    "name": "expensiveResource",
+    "throttleSettings": {
+      "requestsPerSecond": 2,
+      "segment": [{
+        "name": "freeSegment",
+        "requestsPerSecond": 0
+      },
+        {
+          "name": "premium",
+          "requestsPerSecond": 5
+        }
+      ],
+      "account": [{
+        "name": "ola",
+        "requestsPerSecond": 10
+      }]
+    }
+  },
+  {
+    "name": "restrictedResource",
+    "throttleSettings": {
+      "requestsPerSecond": 10,
+      "segment": [{
+        "name": "freeSegment",
+        "requestsPerSecond": 2
+      },
+        {
+          "name": "premium",
+          "requestsPerSecond": 20
+        }
+      ],
+      "account": [{
+        "name": "cisco",
+        "requestsPerSecond": 25
+      }]
+    }
+  }
+]
