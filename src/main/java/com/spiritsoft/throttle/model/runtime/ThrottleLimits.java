@@ -23,11 +23,15 @@ public class ThrottleLimits {
         return allowedRequests.get();
     }
 
-    public int getIfAllowed() {
-        if (allowedRequests.get() == 0) {
-            throw new RequestBlockedException("Exceeded Allowed Requests Per Second, try again in some time");
-        }
-        return allowedRequests.getAndDecrement();
+    public ThrottleLimits getAndDecrementLimitsIfAllowed() {
+
+       if (allowedRequests.get() == 0) {
+           throw new RequestBlockedException(
+                   "Exceeded Allowed Requests Per Second, try again in some time");
+       }
+       int val = allowedRequests.getAndDecrement();
+       //System.out.println(val);
+       return this;
     }
 
     public ThrottleLimits timeStampedClone() {

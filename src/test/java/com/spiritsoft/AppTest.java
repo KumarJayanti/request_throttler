@@ -155,6 +155,7 @@ public class AppTest
         //the third call should result in RequestBlocked.
         cache.get("intel",
                 segmentLookupCache.getSegment("intel"), "restrictedResource");
+
         cache.get("intel",
                 segmentLookupCache.getSegment("intel"), "restrictedResource");
 
@@ -172,13 +173,13 @@ public class AppTest
 
     }
 
-    @Test(timeout = 16) //milliseconds
+    @Test(timeout = 100) //milliseconds
     public void testRateLimiting_Performance() {
 
         RateLimitsMaster master = new RateLimitsMaster(configService);
         RateLimiterService cache = new RateLimitsCache(master);
         for (int i=0; i < 200; i++) {
-            int result1 = cache.get("cisco",
+            ThrottleLimits result1 = cache.get("cisco",
                     segmentLookupCache.getSegment("cisco"), "newResource");
         }
     }
@@ -186,20 +187,21 @@ public class AppTest
     @Test
     public void testRateLimiting_ConcurrentAccess() {
 
+        int NUM_THREADS = 10;
         //there should be no exceptions thrown
         RateLimitsMaster master = new RateLimitsMaster(configService);
         RateLimiterService cache = new RateLimitsCache(master);
         //resource="expensiveResource", account="ola", segment="newSegment", result=10
 
         ExecutorService WORKER_THREAD_POOL
-                = Executors.newFixedThreadPool(10);
-        CountDownLatch latch = new CountDownLatch(10);
-        for (int i = 0; i < 10; i++) {
+                = Executors.newFixedThreadPool(NUM_THREADS);
+        CountDownLatch latch = new CountDownLatch(NUM_THREADS);
+        for (int i = 0; i < NUM_THREADS; i++) {
             WORKER_THREAD_POOL.submit(() -> {
                 try {
-                    int result1 = cache.get("ola",
+                    ThrottleLimits result1 = cache.get("ola",
                             segmentLookupCache.getSegment("ola"), "expensiveResource");
-                    System.out.println(result1);
+                    //System.out.println(result1.get());
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 } finally {

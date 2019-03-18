@@ -30,26 +30,25 @@ public class RateLimitsMaster {
 
     public ThrottleLimits get(String accountId, String segment, String resource) {
         String key = computeKey(accountId, resource);
-        if (map.containsKey(key)) {
-            return map.get(key);
-        }
-        //compute the ThrottleLimits and put into the map before returning
-        Map<String, ConfigurationTree>  resourceConfigMap =
-                configurationService.getResourceConfigMap();
 
-        String res = resourceConfigMap.containsKey(resource) ?
-                resource : ConfigurationService.GLOBAL_RESOURCE;
-        ConfigurationTree tree = resourceConfigMap.get(res);
-        if (tree == null) {
-            throw new ConfigurationValidationException(
-                    "Could not find mandatory throttle limit configuration for resource:"
-                            + ConfigurationService.GLOBAL_RESOURCE);
-        }
-        int limit = computeRateLimit(tree, segment, accountId);
-        ThrottleLimits tl = new ThrottleLimits(limit);
-        map.put(key, tl);
+        return map.computeIfAbsent(key, k -> {
 
-        return tl;
+            //compute the ThrottleLimits and put into the map before returning
+            Map<String, ConfigurationTree> resourceConfigMap =
+                    configurationService.getResourceConfigMap();
+
+            String res = resourceConfigMap.containsKey(resource) ?
+                    resource : ConfigurationService.GLOBAL_RESOURCE;
+            ConfigurationTree tree = resourceConfigMap.get(res);
+            if (tree == null) {
+                throw new ConfigurationValidationException(
+                        "Could not find mandatory throttle limit configuration for resource:"
+                                + ConfigurationService.GLOBAL_RESOURCE);
+            }
+            int limit = computeRateLimit(tree, segment, accountId);
+            ThrottleLimits tl = new ThrottleLimits(limit);
+            return tl;
+        });
     }
 
     private  int computeRateLimit(ConfigurationTree tree, String segment, String account) {

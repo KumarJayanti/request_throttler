@@ -1,6 +1,7 @@
 package com.spiritsoft.throttle.service;
 
 import com.spiritsoft.throttle.exceptions.RequestBlockedException;
+import com.spiritsoft.throttle.model.runtime.ThrottleLimits;
 
 
 public interface RateLimiterService {
@@ -12,9 +13,9 @@ public interface RateLimiterService {
      * @param accountId
      * @param segment
      * @param resource
-     * @return a count of remaining requests allowed
+     * @return The ThrottleLimits object
      * @throws {@link RequestBlockedException} if the request is blocked due to rateLimit
      */
-    int get(String accountId, String segment, String resource);
+    ThrottleLimits get(String accountId, String segment, String resource);
 
 }

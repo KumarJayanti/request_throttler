@@ -1,5 +1,6 @@
 package com.spiritsoft.throttle.implementation;
 
+import com.spiritsoft.throttle.exceptions.RequestBlockedException;
 import com.spiritsoft.throttle.model.runtime.ThrottleLimits;
 import com.spiritsoft.throttle.service.DistributedCacheFactory;
 import com.spiritsoft.throttle.service.RateLimiterService;
@@ -11,7 +12,7 @@ import java.util.Map;
  */
 public class RateLimitsCache implements RateLimiterService {
     RateLimitsMaster master;
-    private static final  int MILLIS_IN_ONE_SECOND = 1000;
+    private static final int MILLIS_IN_ONE_SECOND = 1000;
 
     //this is the cache that the RateLimiting Cache would use
     private Map<String, ThrottleLimits> map =
@@ -23,25 +24,23 @@ public class RateLimitsCache implements RateLimiterService {
     }
 
     @Override
-    public synchronized int get(String accountId, String segment, String resource) {
+    public ThrottleLimits get(String accountId, String segment, String resource) {
         String key = RateLimitsMaster.computeKey(accountId, resource);
-        ThrottleLimits limits;
-        if (map.containsKey(key)) {
-            limits = map.get(key);
-            if (limits.isTimedOut(MILLIS_IN_ONE_SECOND)) {
-                limits = limits.timeStampedClone();
-                map.put(key, limits);
-            }
-        } else {
-            //need to fetch from the master
-            //TODO: optimize this as currently we have compute key again inside master
-            limits = master.get(accountId, segment, resource);
-            //set the time of acquisition
-            limits = limits.timeStampedClone();
-            map.put(key, limits);
+        map.computeIfAbsent(key, (String k) ->
+                master.get(accountId, segment, resource).timeStampedClone());
 
-        }
-        return limits.getIfAllowed();
+        ThrottleLimits ret =  map.computeIfPresent(key,
+                    (k, v) -> {
+                        if (v.isTimedOut(MILLIS_IN_ONE_SECOND)) {
+                            return v.timeStampedClone();
+                        } else {
+                            ThrottleLimits rval=  v.getAndDecrementLimitsIfAllowed();
+                            return  rval;
+                        }
+                    });
+
+        return  ret;
+
     }
 
 }
