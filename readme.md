@@ -11,17 +11,13 @@ This project is a weekend hack project and i shall work on enhancements based on
 
 ### Getting Started
 
- 1. Clone the repository
- 2. Build the maven project
- 3. run the unittest AppTest.java
+ 1. Clone the repository : https://github.com/KumarJayanti/request_throttler.git
+ 2. Build the maven project : mvn install
+ 3. run the unittest AppTest.java : mvn test
 
 
 ### Prerequisites
 
-
-```
-Give examples
-```
 
 ### Installing
 
@@ -43,12 +39,6 @@ tree for that Resource and Cache a "Per-Account + Per-Resource" RateLimit Entity
 4.  Makes use of Atomic operations computeIfPresent and computeIfAbsent with the Assumption that the underlying Cache
 supplied by DistributedCacheFactory returns Concurrent and Distributed versions of the DataStructure. In the sample implementation
 of the Factory a ConcurrentHashMap was used.
-
-
-### Break down into end to end tests
-
-
-## Deployment
 
 
 ## Contributing
